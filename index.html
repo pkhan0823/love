@@ -14,49 +14,106 @@
 
         body { 
             margin: 0; font-family: 'Segoe UI', sans-serif; 
-            background: #fff5f8; display: flex; align-items: center; justify-content: center; min-height: 100vh;
+            background: #fff5f8; display: flex; align-items: center; justify-content: center; 
+            min-height: 100vh; overflow: hidden;
         }
 
-        /* The specific highlight for the letter 'A' */
+        /* Highlight for the letter 'A' */
         .highlight-a { 
             color: var(--hot-pink); 
             font-weight: bold; 
             text-transform: uppercase;
+            display: inline-block;
+            animation: breathe 2s infinite alternate;
+        }
+
+        @keyframes breathe {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); text-shadow: 0 0 5px var(--soft-pink); }
         }
 
         .hidden { display: none !important; }
 
         .container {
             background: white; padding: 40px; border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 450px;
+            box-shadow: 0 15px 40px rgba(246, 79, 152, 0.2); 
+            text-align: center; width: 90%; max-width: 450px;
+            position: relative; z-index: 10;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Entrance Animation */
+        .reveal-anim {
+            animation: popIn 0.8s ease-out forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         h1 { color: var(--deep-magenta); font-size: 1.4rem; margin-bottom: 20px; }
 
         input {
             width: 85%; padding: 12px; border: 2px solid var(--soft-pink);
-            border-radius: 12px; margin-bottom: 15px; outline: none; text-align: center; font-size: 1rem;
+            border-radius: 12px; margin-bottom: 15px; outline: none; 
+            text-align: center; font-size: 1rem; transition: 0.3s;
         }
+
+        input:focus { border-color: var(--hot-pink); box-shadow: 0 0 10px rgba(246, 79, 152, 0.2); }
 
         .btn-group { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
 
         .btn {
             padding: 12px 30px; border-radius: 25px; border: none;
             cursor: pointer; font-weight: bold; transition: 0.3s;
+            position: relative; overflow: hidden;
         }
 
-        .btn-ok { background: var(--deep-magenta); color: white; }
+        .btn-ok { 
+            background: var(--deep-magenta); color: white; 
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(191, 0, 133, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(191, 0, 133, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(191, 0, 133, 0); }
+        }
+
         .btn-ignore { background: #eee; color: #777; }
+        .btn:active { transform: scale(0.95); }
 
         .message-box {
             text-align: left; line-height: 1.8; color: #444; font-size: 1.05rem;
             border-left: 4px solid var(--soft-pink); padding-left: 15px; margin-bottom: 25px;
+            animation: slideUp 1s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Floating Hearts Animation */
+        .heart {
+            position: fixed;
+            user-select: none;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatUp 4s linear forwards;
+            font-size: 24px;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="container">
+    <div id="login-screen" class="container reveal-anim">
         <h1>Enter the secret code</h1>
         <input type="text" id="code-input" placeholder="Hint: enter your name">
         <br>
@@ -79,39 +136,76 @@
     </div>
 
     <script>
-        // SET YOUR SECRET CODE HERE (e.g., "1405" for May 14th)
         const SECRET_CODE = "afifa"; 
 
-        // Function to highlight 'A' and make it Capital/Pink
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤️';
+            
+            // Randomly choose colors: Hot Pink, Black, or White
+            const colors = ['#F64F98', '#000000', '#FFFFFF'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            heart.style.color = randomColor;
+
+            // Randomize position and speed
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = (Math.random() * 20 + 15) + 'px'; // Varied sizes
+            heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+            heart.style.opacity = Math.random() * 0.8 + 0.2;
+            
+            // Apply text shadow to white hearts so they are visible on light backgrounds
+            if(randomColor === '#FFFFFF') {
+                heart.style.textShadow = "0 0 5px rgba(0,0,0,0.2)";
+            }
+
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 5000);
+        }
+
         function formatLetterA() {
             const container = document.getElementById('letter-text');
             container.innerHTML = container.innerHTML.replace(/a/gi, '<span class="highlight-a">A</span>');
         }
 
-        // Logic to unlock the page
         function checkSecret() {
-            const userInput = document.getElementById('code-input').value;
+            const userInput = document.getElementById('code-input').value.toLowerCase();
             if (userInput === SECRET_CODE) {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-                formatLetterA();
+                // Trigger mixed heart animation
+                const heartInterval = setInterval(createHeart, 200);
+                
+                const login = document.getElementById('login-screen');
+                const main = document.getElementById('main-content');
+                
+                login.style.transform = "scale(0.5)";
+                login.style.opacity = "0";
+                
+                setTimeout(() => {
+                    login.classList.add('hidden');
+                    main.classList.remove('hidden');
+                    main.classList.add('reveal-anim');
+                    formatLetterA();
+                }, 400);
+
+                // Keeps the hearts floating for a while
+                setTimeout(() => clearInterval(heartInterval), 15000);
             } else {
-                document.getElementById('error-msg').classList.remove('hidden');
+                const error = document.getElementById('error-msg');
+                error.classList.remove('hidden');
+                error.style.animation = "shake 0.3s";
+                setTimeout(() => error.style.animation = "", 300);
             }
         }
 
-        // Action for IGNORE button
         function ignoreAction() {
             alert("I understand... I will be here whenever you are ready.");
         }
 
-        // Form Submission (Sending number to your email)
         const form = document.getElementById('number-form');
         form.onsubmit = async (e) => {
             e.preventDefault();
             const phone = document.getElementById('phone-drop').value;
 
-            // REPLACE 'YOUR_FORMSPREE_ID' WITH YOUR ACTUAL ID FROM FORMSPREE.IO
             const response = await fetch('https://formspree.io/f/xlgoapkk', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -119,7 +213,7 @@
             });
 
             if (response.ok) {
-                alert("Sent! I will check it soon. ");
+                alert("Sent! I will check it soon.");
             } else {
                 alert("Error sending. Please try again.");
             }
