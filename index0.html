@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Message</title>
+    <style>
+        :root {
+            --light-blue: #97C8D8;
+            --soft-pink: #F8B4CB;
+            --hot-pink: #F64F98;
+            --deep-magenta: #BF0085;
+        }
+
+        body { 
+            margin: 0; font-family: 'Segoe UI', sans-serif; 
+            background: #fff5f8; display: flex; align-items: center; justify-content: center; min-height: 100vh;
+        }
+
+        /* The specific highlight for the letter 'A' */
+        .highlight-a { 
+            color: var(--hot-pink); 
+            font-weight: bold; 
+            text-transform: uppercase;
+        }
+
+        .hidden { display: none !important; }
+
+        .container {
+            background: white; padding: 40px; border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 450px;
+        }
+
+        h1 { color: var(--deep-magenta); font-size: 1.4rem; margin-bottom: 20px; }
+
+        input {
+            width: 85%; padding: 12px; border: 2px solid var(--soft-pink);
+            border-radius: 12px; margin-bottom: 15px; outline: none; text-align: center; font-size: 1rem;
+        }
+
+        .btn-group { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
+
+        .btn {
+            padding: 12px 30px; border-radius: 25px; border: none;
+            cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+
+        .btn-ok { background: var(--deep-magenta); color: white; }
+        .btn-ignore { background: #eee; color: #777; }
+
+        .message-box {
+            text-align: left; line-height: 1.8; color: #444; font-size: 1.05rem;
+            border-left: 4px solid var(--soft-pink); padding-left: 15px; margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen" class="container">
+        <h1>Enter the secret code</h1>
+        <input type="text" id="code-input" placeholder="Hint: Month of Birth & frist letter of my name like(08a)">
+        <br>
+        <button class="btn btn-ok" onclick="checkSecret()">Open</button>
+        <p id="error-msg" style="color: red; margin-top: 10px;" class="hidden">Try again, love.</p>
+    </div>
+
+    <div id="main-content" class="container hidden">
+        <div class="message-box" id="letter-text">
+            Hey if you are open this message first of all I am sorry to contact you like this & I know you don't like this but, this is the way I keep love in secret. And please don't ignore me & you misunderstood me. If you want to talk to me just drop your number and click the button below.
+        </div>
+
+        <form id="number-form">
+            <input type="tel" name="phone" id="phone-drop" placeholder="Drop your number here..." required>
+            <div class="btn-group">
+                <button type="submit" class="btn btn-ok">OK</button>
+                <button type="button" class="btn btn-ignore" onclick="ignoreAction()">IGNORE</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // SET YOUR SECRET CODE HERE (e.g., "1405" for May 14th)
+        const SECRET_CODE = "11p"; 
+
+        // Function to highlight 'A' and make it Capital/Pink
+        function formatLetterA() {
+            const container = document.getElementById('letter-text');
+            container.innerHTML = container.innerHTML.replace(/a/gi, '<span class="highlight-a">A</span>');
+        }
+
+        // Logic to unlock the page
+        function checkSecret() {
+            const userInput = document.getElementById('code-input').value;
+            if (userInput === SECRET_CODE) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                formatLetterA();
+            } else {
+                document.getElementById('error-msg').classList.remove('hidden');
+            }
+        }
+
+        // Action for IGNORE button
+        function ignoreAction() {
+            alert("I understand... I will be here whenever you are ready.");
+        }
+
+        // Form Submission (Sending number to your email)
+        const form = document.getElementById('number-form');
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('phone-drop').value;
+
+            // REPLACE 'YOUR_FORMSPREE_ID' WITH YOUR ACTUAL ID FROM FORMSPREE.IO
+            const response = await fetch('https://formspree.io/f/xlgoapkk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: phone, message: "She dropped her number!" })
+            });
+
+            if (response.ok) {
+                alert("Sent! I will check it soon. 😊");
+            } else {
+                alert("Error sending. Please try again.");
+            }
+        };
+    </script>
+</body>
+</html>
